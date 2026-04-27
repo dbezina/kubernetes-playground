@@ -1,0 +1,51 @@
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:4.4-focal
+        volumeMounts:
+        - name: init-data
+          mountPath: /docker-entrypoint-initdb.d 
+        - name: mongo-storage
+          mountPath: /data/db
+        ports:
+          - containerPort: 27017
+      volumes:
+      - name: init-data
+        configMap:
+          name: mongo-properties 
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo-storage
+    spec:
+      storageClassName: standard
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1G    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+spec:
+  clusterIP: None
+  selector:
+    app: mongo
+  ports:
+  - port: 27017
+    targetPort: 27017
