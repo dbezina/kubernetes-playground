@@ -1,0 +1,29 @@
+kubectl create namespace  secured-namespace
+
+ kubectl get ns secured-namespace --show-labels
+
+ kubectl -n secure-namespace run insecure-pod --image=nginx:stable -o yaml --dry-run=client | tee insecure-client.yaml
+
+ edit file.
+ try 
+ spec:
+  hostNetwork: true
+  hostPID : true
+
+    containers:
+  - image: nginx:stable
+    name: insecure-pod
+    securityContext:
+      privileged: true
+      runAsUser: 0
+
+
+try to apply/ delete 
+
+kubectl label namespace secured-namespace \
+  pod-secutiry.kubernetes.io/enforce=baseline \
+  pod-secutiry.kubernetes.io/enforce-version=latest  \
+  pod-secutiry.kubernetes.io/warn=baseline   \
+  pod-secutiry.kubernetes.io/warn-version=latest    
+
+play with labels and pod 
